@@ -39,7 +39,7 @@ except Exception:
     USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/120.0.0.0 Safari/537.36"
 
 MAX_CONCURRENT_TASKS = 10
-REQUEST_TIMEOUT = 400  # 2 мин
+REQUEST_TIMEOUT = 12_000  # 2 мин
 HEADLESS = True
 VIEWPORT = {'width': 600, 'height': 400}
 PROXY = None  # пример: "http://login:pass@ip:port"
