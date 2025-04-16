@@ -1,0 +1,38 @@
+[build-system]
+requires = ["uv>=0.1.0", "setuptools>=42"]
+build-backend = "setuptools.build_meta"
+
+
+
+[project]
+name = "find-watch"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "aiohttp>=3.11.16",
+    "argparse>=1.4.0",
+    "asgiref>=3.8.1",
+    "asyncio>=3.4.3",
+    "crispy-bootstrap5>=2025.4",
+    "dj-database-url>=2.3.0",
+    "django>=5.2",
+    "django-bootstrap5>=25.1",
+    "django-crispy-forms>=2.4",
+    "django-debug-toolbar>=5.1.0",
+    "django-extensions>=4.1",
+    "django-redis-cache>=3.0.1",
+    "fake-useragent>=2.1.0",
+    "fontawesome-free>=5.15.4",
+    "gunicorn>=23.0.0",
+    "playwright>=1.51.0",
+    "psycopg2-binary>=2.9.10",
+    "pymemcache>=4.0.0",
+    "python-decouple>=3.8",
+    "tqdm>=4.67.1",
+    "uvicorn>=0.34.1",
+    "whitenoise>=6.9.0",
+]
+[railway]
+restart = true

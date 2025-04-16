@@ -1,0 +1,7 @@
+{
+  "build": {
+    "builder": "nixpacks",
+    "enabled": false,
+    "installCommand": "curl -LsSf https://astral.sh/uv/install.sh | sh && . ~/.cargo/env && uv pip install --no-deps . && uv pip sync --pyproject"
+  }
+}

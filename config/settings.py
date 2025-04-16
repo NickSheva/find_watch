@@ -25,7 +25,7 @@ SECRET_KEY = config('SECRET_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = config('DEBUG', default=False, cast=bool)
 
-ALLOWED_HOSTS = config('ALLOWED_HOSTS', default=[], cast=Csv()) # Для разработки. В продакшене укажите конкретные IP
+ALLOWED_HOSTS = config('ALLOWED_HOSTS', default=['*'], cast=Csv()) # Для разработки. В продакшене укажите конкретные IP
 # Отключение проверки Origin (только для разработки!)
 # CSRF_TRUSTED_ORIGINS = config("CSRF_TRUSTED_ORIGINS")
 
