@@ -1,18 +1,8 @@
 {
   "build": {
+    "builder": "nixpacks",
+    "enabled": false,
     "installCommand": "uv pip install --no-deps . && uv pip sync pyproject.toml --system",
-    "postBuildCommand": "python manage.py migrate --no-input",
-    "startCommand": "python manage.py collectstatic --noinput && gunicorn projectname.wsgi --bind 0.0.0.0:$PORT --workers 3"
+    "postBuildCommand": "python manage.py collectstatic --no-input"
   }
 }
-
-
-
-//{
-//  "build": {
-//    "postBuildCommand": "python manage.py collectstatic --noinput",
-//    "builder": "nixpacks",
-//    "enabled": false,
-//    "installCommand": "curl -LsSf https://astral.sh/uv/install.sh | sh && . ~/.cargo/env && uv pip install --no-deps . && uv pip sync --pyproject"
-//  }
-//}

@@ -145,13 +145,14 @@ if not DEBUG:
     SESSION_COOKIE_SECURE = True
     CSRF_COOKIE_SECURE = True
     SECURE_HSTS_SECONDS = 31536000
+    SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+    SECURE_HSTS_PRELOAD = True
 
 # DISABLE_SERVER_SIDE_CURSORS = True # Для PostgreSQL
 
 # HTTP Strict Transport Security (HSTS) указывает браузеру использовать только HTTPS.
 # SECURE_HSTS_SECONDS = 31536000  # 1 год
-# SECURE_HSTS_INCLUDE_SUBDOMAINS = True
-# SECURE_HSTS_PRELOAD = True
+
 
 
 # Перенаправление HTTP → HTTPS
