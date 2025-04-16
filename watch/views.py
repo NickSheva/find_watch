@@ -16,7 +16,7 @@ class HomePageView(TemplateView):
         return context
 
 class ProductListView(ListView):
-    model = ParsedProduct  #.objects.all().order_by('-created_at')
+    model = ParsedProduct.objects.all().order_by('-created_at')
     template_name = 'watch/product_list.html'
     context_object_name = 'products'
     paginate_by = 20
