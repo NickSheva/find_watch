@@ -141,6 +141,26 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 DISABLE_SERVER_SIDE_CURSORS = True # Для PostgreSQL
 
+# HTTP Strict Transport Security (HSTS) указывает браузеру использовать только HTTPS.
+SECURE_HSTS_SECONDS = 31536000  # 1 год
+SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+SECURE_HSTS_PRELOAD = True
+
+
+# Перенаправление HTTP → HTTPS
+SECURE_SSL_REDIRECT = True
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+
+SESSION_COOKIE_SECURE = True
+
+CSRF_COOKIE_SECURE = True
+
+
+
+
+
+
+
 # CACHES = {
 #     'default': {
 #         'BACKEND': 'django_redis.cache.RedisCache',
