@@ -15,7 +15,15 @@ from decouple import config, Csv
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 TEMPLATE_DIR = BASE_DIR/ 'templates'
+required_dirs = [
+    BASE_DIR / 'static',
+    BASE_DIR / 'media',
+    BASE_DIR / 'logs',
+    BASE_DIR / 'staticfiles',
+]
 
+for directory in required_dirs:
+    directory.mkdir(exist_ok=True)
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
@@ -24,8 +32,9 @@ SECRET_KEY = config('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = config('DEBUG', default=False, cast=bool)
-
-ALLOWED_HOSTS = config('ALLOWED_HOSTS', default=['*'], cast=Csv()) # Для разработки. В продакшене укажите конкретные IP
+CSRF_TRUSTED_ORIGINS = ['https://findwatch-production.up.railway.app']
+ALLOWED_HOSTS = ['findwatch-production.up.railway.app', 'localhost', '127.0.0.1']
+# ALLOWED_HOSTS = config('ALLOWED_HOSTS', default=['*'], cast=Csv()) # Для разработки. В продакшене укажите конкретные IP
 # Отключение проверки Origin (только для разработки!)
 # CSRF_TRUSTED_ORIGINS = config("CSRF_TRUSTED_ORIGINS")
 
