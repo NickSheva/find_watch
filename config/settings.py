@@ -25,12 +25,12 @@ SECRET_KEY = config('SECRET_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = config('DEBUG', default=False, cast=bool)
 
-ALLOWED_HOSTS = config('ALLOWED_HOSTS', cast=lambda v: [s.strip() for s in v.split(',')]) # Для разработки. В продакшене укажите конкретные IP
+ALLOWED_HOSTS = config('ALLOWED_HOSTS') # Для разработки. В продакшене укажите конкретные IP
 # Отключение проверки Origin (только для разработки!)
-CSRF_TRUSTED_ORIGINS = config("CSRF_TRUSTED_ORIGINS", cast=lambda v: [s.strip() for s in v.split(',')])
+# CSRF_TRUSTED_ORIGINS = config("CSRF_TRUSTED_ORIGINS")
 
 # Разрешить доступ со всех локальных IP
-INTERNAL_IPS = config("INTERNAL_IPS", cast=lambda v: [s.strip() for s in v.split(',')])
+# INTERNAL_IPS = config("INTERNAL_IPS")
 
 # Application definition
 CRISPY_TEMPLATE_ALLOWED_PACKS = 'bootstrap5'
