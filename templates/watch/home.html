@@ -1,0 +1,128 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}Главная страница{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <div class="flex flex-col items-center">
+        <div class="w-full max-w-2xl text-center">
+            <!-- Логотип SVG с Tailwind классами -->
+{#            <img src="{% static 'img/logo_ru.svg' %}" alt="Logo" height="120" class="h-10 inline-block mr-2">#}
+            <h1 class="text-4xl font-bold text-gray-800 mb-6 mt-4">Добро пожаловать в парсер товаров</h1>
+            <p class="text-xl text-gray-600 mb-8">Используйте наш инструмент для сбора данных о товарах с сайта
+                <a href="https://lombard-perspectiva.ru"
+                   target="_blank"
+                   rel="noopener noreferrer"
+                   class="text-blue-600 hover:text-blue-800 hover:underline transition-colors duration-200">
+                    lombard-perspectiva.ru
+                </a>
+            </p>
+
+
+            <div class="d-grid gap-3 d-sm-flex justify-content-sm-center">
+                <a href="{% url 'parse_view' %}" class="btn btn-primary btn-lg px-4 gap-3">
+                    <i class="fas fa-play-circle me-2"></i> Запустить парсинг
+                </a>
+                <a href="{% url 'product_list' %}" class="btn btn-outline-secondary btn-lg px-4">
+                    <i class="fas fa-list me-2"></i> Список товаров
+                </a>
+            </div>
+        </div>
+    </div>
+
+    {% if messages %}
+    <div class="flex justify-center mt-8">
+        <div class="w-full max-w-2xl">
+            {% for message in messages %}
+            <div class="rounded-md p-4 mb-4 {% if message.tags == 'error' %}bg-red-50 text-red-800{% elif message.tags == 'success' %}bg-green-50 text-green-800{% elif message.tags == 'warning' %}bg-yellow-50 text-yellow-800{% else %}bg-blue-50 text-blue-800{% endif %}">
+                <div class="flex justify-between items-center">
+                    <div class="flex items-center">
+                        {% if message.tags == 'error' %}
+                        <i class="fas fa-exclamation-circle mr-2"></i>
+                        {% elif message.tags == 'success' %}
+                        <i class="fas fa-check-circle mr-2"></i>
+                        {% elif message.tags == 'warning' %}
+                        <i class="fas fa-exclamation-triangle mr-2"></i>
+                        {% else %}
+                        <i class="fas fa-info-circle mr-2"></i>
+                        {% endif %}
+                        <span>{{ message }}</span>
+                    </div>
+                    <button type="button" class="text-gray-500 hover:text-gray-700">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+
+{#{% extends "base.html" %}#}
+{#{% load static %}#}
+{#{% block title %}Главная страница{% endblock %}#}
+{##}
+{#{% block content %}#}
+{#<div class="container mt-5">#}
+{#    <div class="row justify-content-center">#}
+{#        <div class="col-md-8 text-center">#}
+{#            <img src="{% static 'img/logo.svg' %}" alt="Logo" height="120" class="me-2">#}
+{#            <h3 class="display-6">#}
+{#                Добро пожаловать в парсер товаров#}
+{#            </h3>#}
+{#            <p class="text-xl text-gray-600 mb-8">Используйте наш инструмент для сбора данных о товарах с сайта#}
+{#            <a href="https://lombard-perspectiva.ru"#}
+{#               target="_blank"#}
+{#               rel="noopener noreferrer"#}
+{#               class="text-blue-600 hover:text-blue-800 hover:underline transition-colors duration-200">#}
+{#                lombard-perspectiva.ru#}
+{#            </a>#}
+{#            </p>#}
+{##}
+{#            <div class="d-grid gap-3 d-sm-flex justify-content-sm-center">#}
+{#                <a href="{% url 'parse_view' %}" class="btn btn-primary btn-lg px-4 gap-3">#}
+{#                    <i class="fas fa-play-circle me-2"></i> Запустить парсинг#}
+{#                </a>#}
+{#                <a href="{% url 'product_list' %}" class="btn btn-outline-secondary btn-lg px-4">#}
+{#                    <i class="fas fa-list me-2"></i> Список товаров#}
+{#                </a>#}
+{#            </div>#}
+{#        </div>#}
+{#    </div>#}
+{##}
+{#    {% if messages %}#}
+{#    <div class="row justify-content-center mt-5">#}
+{#        <div class="col-md-8">#}
+{#            {% for message in messages %}#}
+{#            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">#}
+{#                {{ message }}#}
+{#                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>#}
+{#            </div>#}
+{#            {% endfor %}#}
+{#        </div>#}
+{#    </div>#}
+{#    {% endif %}#}
+{#</div>#}
+{##}
+{#<style>#}
+{#    .welcome-card {#}
+{#        border-radius: 15px;#}
+{#        box-shadow: 0 6px 15px rgba(0,0,0,0.1);#}
+{#        transition: transform 0.3s ease;#}
+{#    }#}
+{#    .welcome-card:hover {#}
+{#        transform: translateY(-5px);#}
+{#    }#}
+{#    .btn-primary {#}
+{#        background-color: #4e73df;#}
+{#        border-color: #4e73df;#}
+{#    }#}
+{#    .btn-primary:hover {#}
+{#        background-color: #3a5ec0;#}
+{#        border-color: #3a5ec0;#}
+{#    }#}
+{#</style>#}
+{#{% endblock %}#}

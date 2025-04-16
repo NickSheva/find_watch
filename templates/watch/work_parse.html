@@ -1,0 +1,94 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2 class="mb-4 text-primary"">"Часовой центр Перспектива"</h2>
+
+    <form id="parseForm" method="post" class="mb-4">
+        {% csrf_token %}
+        <div class="form-group">
+            <label for="pageNum">Номер страницы:</label>
+            <input type="number" class="form-control" id="pageNum" name="page_num" value="1" min="1" required>
+        </div>
+{#        <div class="form-group">#}
+{#            <label for="itemsLimit">Лимит товаров (0 - все):</label>#}
+{#            <input type="number" class="form-control" id="itemsLimit" name="items_limit" value="0" min="0">#}
+{#        </div>#}
+        <button type="submit" class="btn btn-primary">Запустить парсинг</button>
+    </form>
+
+    <div id="status" class="alert alert-info">Ожидание запуска...</div>
+    <div class="progress my-4">
+        <div id="progressBar" class="progress-bar" role="progressbar" style="width: 0%">0%</div>
+    </div>
+    <div id="results" class="mt-4">
+        <h4>Результаты:</h4>
+        <table class="table table-striped" id="resultsTable">
+            <thead>
+                <tr>
+                    <th>№</th>
+                    <th>Фото</th>
+                    <th>Название</th>
+                    <th>Ссылка</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+document.getElementById('parseForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+
+    const form = e.target;
+    const submitBtn = form.querySelector('button');
+    const statusEl = document.getElementById('status');
+    const resultsTable = document.querySelector('#resultsTable tbody');
+
+    submitBtn.disabled = true;
+    statusEl.textContent = 'Парсинг запущен...';
+    resultsTable.innerHTML = '';
+
+    try {
+        const formData = new FormData(form);
+        const response = await fetch('{% url "parse_view" %}', {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        });
+
+        const data = await response.json();
+
+        if (data.status === 'success') {
+            statusEl.textContent = `Найдено ${data.items_count} товаров на странице ${data.page_num}`;
+            statusEl.className = 'alert alert-success';
+
+            data.results.forEach((item, index) => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${index + 1}</td>
+                    <td>
+                        ${item.img ? `<img src="${item.img}" alt="Фото" style="max-height: 100px;">` : '<span class="text-muted">Нет фото</span>'}
+                    </td>
+                    <td>${item.name || 'Нет данных'}</td>
+                    <td><a href="${item.url}" target="_blank">Открыть</a></td>
+                `;
+                resultsTable.appendChild(row);
+            });
+        } else {
+            statusEl.textContent = 'Ошибка: ' + data.message;
+            statusEl.className = 'alert alert-danger';
+        }
+    } catch (error) {
+        statusEl.textContent = 'Ошибка при выполнении запроса';
+        statusEl.className = 'alert alert-danger';
+        console.error(error);
+    } finally {
+        submitBtn.disabled = false;
+    }
+});
+</script>
+{% endblock %}
