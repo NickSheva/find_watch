@@ -65,4 +65,8 @@ RUN python manage.py collectstatic --noinput || echo "Static files collection sk
 ENV PORT=8080
 
 # Используйте один из вариантов CMD:
-CMD ["sh", "-c", "gunicorn config.wsgi --bind 0.0.0.0:${PORT} --workers 3"]
+COPY start.sh .
+RUN chmod +x start.sh
+CMD ["./start.sh"]
+#CMD bash -c "python manage.py runserver 0.0.0.0:${PORT}"
+#CMD ["sh", "-c", "gunicorn config.wsgi --bind 0.0.0.0:${PORT:-8080} --workers 3"]
