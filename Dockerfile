@@ -50,19 +50,22 @@ RUN uv pip install --system -e .
 RUN uv pip install --system playwright && \
     playwright install --with-deps
 
-# Копирование оставшихся файлов проекта
-COPY . .
-
 # Сборка статики (если не требуется — не упадёт)
 RUN python manage.py collectstatic --noinput || echo "Static files collection skipped"
 
 # Порт для приложения
+# Устанавливаем Python зависимости
+WORKDIR /app
+
+# Копируем код
+COPY . .
+
+# Устанавливаем переменные окружения
 ENV PORT=8080
-EXPOSE $PORT
+ENV PYTHONUNBUFFERED=1
 
-# Используйте один из вариантов CMD:
-#CMD gunicorn config.wsgi --bind 0.0.0.0:$PORT --workers 3
-#CMD ["sh", "-c", "gunicorn config.wsgi --bind 0.0.0.0:$PORT --workers 3"]
-CMD ["gunicorn", "--bind", "0.0.0.0:${PORT:-8080}", "--workers", "3", "--timeout", "60", "config.wsgi:application"]
+## Собираем статику
+#RUN python manage.py collectstatic --noinput
 
-#CMD ["sh", "-c", "gunicorn config.wsgi --bind 0.0.0.0:${PORT:-8080} --workers 3"]
+# Команда запуска
+CMD gunicorn --bind 0.0.0.0:$PORT your_app.wsgi:application
