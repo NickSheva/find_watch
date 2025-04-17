@@ -1,0 +1,49 @@
+:root {
+  --rainbow-1: #ff6b6b;
+  --rainbow-2: #ffa502;
+  --rainbow-3: #eccc68;
+  --rainbow-4: #2ed573;
+  --rainbow-5: #1e90ff;
+  --rainbow-6: #5352ed;
+}
+
+/* Градиентный фон для body */
+body {
+  background: linear-gradient(
+    135deg,
+    var(--rainbow-1) 0%,
+    var(--rainbow-3) 50%,
+    var(--rainbow-5) 100%
+  );
+  background-attachment: fixed;
+  min-height: 100vh;
+}
+
+/* Полупрозрачная навигация */
+.navbar {
+  background-color: rgba(255, 255, 255, 0.9) !important;
+  backdrop-filter: blur(10px);
+}
+
+/* Радужные кнопки */
+.btn-rainbow {
+  background: linear-gradient(
+    to right,
+    var(--rainbow-1),
+    var(--rainbow-4),
+    var(--rainbow-6)
+  );
+  color: white;
+  border: none;
+}
+
+/* Карточки с цветными границами */
+.card {
+  border-left: 4px solid;
+  border-image: linear-gradient(
+    to bottom,
+    var(--rainbow-1),
+    var(--rainbow-6)
+  ) 1;
+  background-color: rgba(255, 255, 255, 0.9);
+}
