@@ -11,6 +11,10 @@ from fake_useragent import UserAgent
 import argparse
 import sys
 import tqdm
+import aiohttp
+import aiofiles
+import os
+from pathlib import Path
 
 # Настройка логирования
 
@@ -169,10 +173,7 @@ async def cli_main(args):
         logger.info("🛑 Завершение работы парсера")
 
 
-import aiohttp
-import aiofiles
-import os
-from pathlib import Path
+
 
 
 async def bulk_download_images(image_urls: list[str], output_dir: str = "images"):
