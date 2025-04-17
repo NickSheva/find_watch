@@ -1,2 +1,4 @@
-web: gunicorn config.wsgi --workers 3 --bind 0.0.0.0:$PORT --timeout 120
+#!/bin/bash
+web: gunicorn config.wsgi --daemon
 release: python manage.py migrate --no-input
+rq worker --with-scheduler
