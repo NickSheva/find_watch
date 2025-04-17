@@ -61,4 +61,4 @@ ENV PORT=8080
 EXPOSE $PORT
 
 # Команда запуска
-CMD ["sh", "-c", "gunicorn config.wsgi --bind 0.0.0.0:${PORT} --workers 3"]
+CMD ["sh", "-c", "gunicorn config.wsgi --bind 0.0.0.0:8080 --workers 3"]
