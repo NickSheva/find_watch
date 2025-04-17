@@ -44,152 +44,99 @@ HEADLESS = True
 VIEWPORT = {'width': 600, 'height': 400}
 PROXY = None  # пример: "http://login:pass@ip:port"
 
-class ParserTimer:
-    def __init__(self):
-        self.start_time = None
 
-    def start(self):
+# ... (импорты остаются те же)
+
+class ParserTimer:
+    def __enter__(self):
         self.start_time = time.perf_counter()
         logger.info("⏱ Начало парсинга")
+        return self
 
-    def stop(self):
-        return time.perf_counter() - self.start_time
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        self.elapsed = time.perf_counter() - self.start_time
+        logger.info(f"⏱ Время выполнения: {self.elapsed:.2f} сек")
 
-async def block_resources(route):
-    # 'image'
-    if route.request.resource_type in {'stylesheet', 'font'}:
-        await route.abort()
-    else:
-        await route.continue_()
 
 async def get_product_data(context, url: str, semaphore: asyncio.Semaphore) -> Optional[dict]:
     async with semaphore:
-        page = await context.new_page()
+        page = None
         try:
-            # await page.route('**/*.{png,jpg,jpeg,webp,svg,gif,css,woff2}', block_resources)
-            await page.goto(url, wait_until="domcontentloaded", timeout=15000)
-        #     logger.info("✅ Страница загружена")
-        # except Exception as e:
-        #     logger.error(f"❌ GOTO провалился: {e}")
-        # try:
-            await page.wait_for_selector('img[itemprop="image"]', timeout=15000)
+            page = await context.new_page()
+            await page.route('**/*.{png,jpg,jpeg,webp,svg,gif,css,woff2}', lambda route: route.abort())
+
+            # Быстрая проверка доступности страницы
+            response = await page.goto(url, wait_until="domcontentloaded", timeout=15_000)
+            if not response or response.status >= 400:
+                raise Exception(f"HTTP {getattr(response, 'status', 'NO_RESPONSE')}")
+
+            # Ждём либо изображение, либо таймаут
+            await asyncio.wait_for(
+                page.wait_for_selector('img[itemprop="image"]', timeout=10_000),
+                timeout=10_000
+            )
 
             product_data = await page.evaluate('''() => {
-                const h1 = document.querySelector('h1[itemprop="name"]');
-                const img = document.querySelector('img[itemprop="image"]');
-                if (!h1 || !img) return null;
+                const nameEl = document.querySelector('h1[itemprop="name"]');
+                if (!nameEl) return null;
 
-                const src = img.currentSrc || img.src || img.getAttribute('data-src') || '';
+                const imgEl = document.querySelector('img[itemprop="image"]');
+                const imgSrc = imgEl?.src || imgEl?.getAttribute('data-src') || '';
 
                 return {
-                    name: h1.textContent.trim(),
+                    name: nameEl.textContent.trim(),
                     url: window.location.href,
-                    image: src
+                    image: imgSrc
                 };
             }''')
 
-            # Подсчёт прогресса
-
             if product_data:
-                logger.info(f"✅ Успешно: {product_data['name'][:30]}...")
+                logger.debug(f"Успешно: {product_data['name'][:30]}...")
                 return product_data
             return None
 
         except Exception as e:
-            logger.error(f"❌ Ошибка ({url[-15:]}): {str(e)[:50]}...")
+            logger.debug(f"Ошибка ({url[-15:]}): {str(e)[:50]}...")
             return None
         finally:
-            await page.close()
+            if page:
+                await page.close()
 
-async def get_product_links(page, page_num: int, retries=3) -> list:
-    url = f"{BASE_URL}/clocks_today/?page={page_num}"
-    logger.info(f"🌐 Загрузка страницы {page_num}")
 
-    for attempt in range(retries):
-        try:
-            await page.goto(url, wait_until="domcontentloaded", timeout=REQUEST_TIMEOUT)
-            await page.wait_for_selector('a.product-list-item', timeout=15000)
+async def parse_products_page(page_num: int, items_limit: int = None):
+    with ParserTimer():
+        async with async_playwright() as p:
+            browser = await p.chromium.launch(
+                headless=True,
+                args=["--disable-blink-features=AutomationControlled"]
+            )
+            context = await browser.new_context(
+                user_agent=USER_AGENT,
+                viewport={'width': 1280, 'height': 720}
+            )
 
-            if await page.query_selector('div#recaptcha'):
-                raise Exception("Обнаружена капча")
-
-            links = await page.evaluate('''() =>
-                Array.from(document.querySelectorAll('a.product-list-item'))
-                    .map(a => a.href)
-                    .filter(Boolean)
-            ''')
-
-            found_links = [urljoin(BASE_URL, link) for link in links if link]
-            logger.info(f"🔗 Найдено {len(found_links)} товаров на странице {page_num}")
-            return found_links
-
-        except Exception as e:
-            logger.warning(f"⚠️ Попытка {attempt + 1} не удалась: {e}")
-            if attempt == retries - 1:
-                logger.error(f"❌ Ошибка при загрузке страницы {page_num}: {e}")
-                return []
-
-async def parse_products_page(page_num: int, items_limit: int = None, on_progress=None):
-    timer = ParserTimer()
-    timer.start()
-
-    async with async_playwright() as p:
-        launch_args = {
-            "headless": HEADLESS,
-            "args": [
-                "--disable-blink-features=AutomationControlled",
-                "--no-sandbox",
-                "--disable-setuid-sandbox",
-                "--disable-dev-shm-usage",
-                "--disable-gpu",
-            ]
-        }
-        if PROXY:
-            launch_args["proxy"] = {"server": PROXY}
-
-        browser = await p.chromium.launch(**launch_args)
-        context = await browser.new_context(
-            user_agent=USER_AGENT,
-            java_script_enabled=True,
-            ignore_https_errors=True,
-            viewport=VIEWPORT,
-            locale='ru-RU',
-        )
-
-        main_page = await context.new_page()
-        try:
-            product_links = await get_product_links(main_page, page_num)
-            if items_limit:
-                product_links = product_links[:items_limit]
-
-            semaphore = asyncio.Semaphore(MAX_CONCURRENT_TASKS)
-            # прогресс-бар по ссылкам
-            tasks = [get_product_data(context, link, semaphore) for link in product_links]
-            # tqdm.gather(*tasks) заменяет обычный asyncio.gather, но показывает прогресс.
-            # ncols=80 — ширина прогресс-бара, можешь подогнать под консоль.
-            # desc — заголовок для прогресса.
             try:
-                results_raw = await asyncio.gather(*tasks)
-                # results_raw = await tqdm.gather(*tasks, desc="📦 Парсинг", ncols=80)
-            except RuntimeError as e:
-                logger.warning(f"Async error (interpreter shutdown?): {e}")
-                results_raw = []
-            # result_raw = await tqdm.gather(*tasks, desk="Парсинг товаров", ncols=80)
+                main_page = await context.new_page()
+                product_links = await get_product_links(main_page, page_num)
+                if items_limit:
+                    product_links = product_links[:items_limit]
 
-            results = [r for r in results_raw if r]
+                semaphore = asyncio.Semaphore(MAX_CONCURRENT_TASKS)
+                tasks = [get_product_data(context, link, semaphore) for link in product_links]
 
-            elapsed = timer.stop()
-            logger.info(f"📊 Статистика: {len(results)} товаров за {timedelta(seconds=elapsed)}")
-            return results
+                results = []
+                for future in tqdm.as_completed(tasks, desc="Обработка товаров"):
+                    result = await future
+                    if result:
+                        results.append(result)
 
-        except Exception as e:
-            logger.error(f"🔥 Критическая ошибка при парсинге: {str(e)}")
-            return []
+                logger.info(f"📊 Результатов: {len(results)}/{len(product_links)}")
+                return results
 
-        finally:
-            await main_page.close()
-            await context.close()
-            await browser.close()
+            finally:
+                await main_page.close()
+                await context.close()
+                await browser.close()
 
 async def cli_main(args):
     setup_logging(args.log_file)
@@ -220,6 +167,80 @@ async def cli_main(args):
     finally:
         logger.info("🛑 Завершение работы парсера")
 
+
+import aiohttp
+import aiofiles
+import os
+from pathlib import Path
+
+
+async def bulk_download_images(image_urls: list[str], output_dir: str = "images"):
+    """
+    Массовая загрузка изображений
+    :param image_urls: Список URL изображений
+    :param output_dir: Папка для сохранения
+    """
+    Path(output_dir).mkdir(exist_ok=True)
+
+    async with aiohttp.ClientSession() as session:
+        tasks = []
+        for url in image_urls:
+            if not url:
+                continue
+
+            filename = os.path.join(output_dir, url.split("/")[-1].split("?")[0])
+            tasks.append(download_single_image(session, url, filename))
+
+        results = await tqdm.gather(*tasks, desc="📥 Загрузка изображений")
+        return [r for r in results if r]
+
+
+async def download_single_image(session: aiohttp.ClientSession, url: str, filename: str):
+    """
+    Загрузка одного изображения
+    """
+    try:
+        async with session.get(url) as response:
+            if response.status == 200:
+                async with aiofiles.open(filename, mode='wb') as f:
+                    await f.write(await response.read())
+                return filename
+    except Exception as e:
+        logger.warning(f"Не удалось загрузить {url}: {str(e)[:50]}")
+        return None
+
+
+# Модифицируем функцию cli_main
+async def cli_main(args):
+    setup_logging(args.log_file)
+
+    try:
+        logger.info(f"🚀 Запуск парсера: страница {args.page}, лимит {args.limit}")
+        results = await parse_products_page(page_num=args.page, items_limit=args.limit)
+
+        # Массовая загрузка изображений
+        if results and args.download_images:
+            image_urls = [item['image'] for item in results if item.get('image')]
+            logger.info(f"🖼️ Начало загрузки {len(image_urls)} изображений...")
+            downloaded = await bulk_download_images(image_urls)
+            logger.info(f"✅ Загружено {len(downloaded)} изображений")
+
+        # Вывод результатов
+        print("\n" + "=" * 50)
+        print(f"Всего получено {len(results)} результатов:")
+        for i, item in enumerate(results[:5], 1):
+            print(f"{i}. {item['name'][:50]}... - {item['url']}")
+        if len(results) > 5:
+            print(f"... и еще {len(results) - 5} товаров")
+
+        return 0
+
+    except Exception as e:
+        logger.error(f"💥 Ошибка: {str(e)}", exc_info=True)
+        return 1
+
+
+# Обновляем аргументы командной строки
 def parse_cli_args():
     parser = argparse.ArgumentParser(
         description="🕵️ Парсер сайта lombard-perspectiva.ru",
@@ -227,7 +248,8 @@ def parse_cli_args():
     )
     parser.add_argument('--page', type=int, default=1, help='Номер страницы каталога')
     parser.add_argument('--limit', type=int, default=None, help='Максимальное количество товаров для парсинга')
-    parser.add_argument('--log-file', type=str, default=None, help='Файл для сохранения логов (опционально)')
+    parser.add_argument('--log-file', type=str, default=None, help='Файл для сохранения логов')
+    parser.add_argument('--download-images', action='store_true', help='Загружать изображения товаров')
     return parser.parse_args()
 
 if __name__ == "__main__":

@@ -157,7 +157,10 @@ if not DEBUG:
     SECURE_HSTS_SECONDS = 31536000
     SECURE_HSTS_INCLUDE_SUBDOMAINS = True
     SECURE_HSTS_PRELOAD = True
-
+# In your gunicorn config.py or command
+workers = 2  # reduce if memory constrained
+timeout = 120
+worker_class = 'gevent'  # for async workers if applicable
 # DISABLE_SERVER_SIDE_CURSORS = True # Для PostgreSQL
 
 # HTTP Strict Transport Security (HSTS) указывает браузеру использовать только HTTPS.
