@@ -3,11 +3,11 @@ services:
     build: .
     container_name: django-app
     ports:
-      - "${PORT}:8080"
+      - "8080:8080"
     env_file:
       - .env
     environment:
-      - PORT=${PORT}
+      - PORT=8080
     volumes:
       - .:/app
     command: gunicorn config.wsgi --bind 0.0.0.0:8080 --workers 3
