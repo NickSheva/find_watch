@@ -62,6 +62,7 @@ RUN python manage.py collectstatic --noinput || echo "Static files collection sk
 
 # Используйте один из вариантов CMD:
 #CMD gunicorn config.wsgi --bind 0.0.0.0:$PORT --workers 3
-CMD ["sh", "-c", "gunicorn config.wsgi --bind 0.0.0.0:$PORT --workers 3"]
+#CMD ["sh", "-c", "gunicorn config.wsgi --bind 0.0.0.0:$PORT --workers 3"]
+CMD ["gunicorn", "--bind", "0.0.0.0:${PORT:-8080}", "--workers", "3", "--timeout", "60", "config.wsgi:application"]
 
 #CMD ["sh", "-c", "gunicorn config.wsgi --bind 0.0.0.0:${PORT:-8080} --workers 3"]

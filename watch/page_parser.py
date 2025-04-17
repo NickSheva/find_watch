@@ -39,7 +39,7 @@ except Exception:
     USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/120.0.0.0 Safari/537.36"
 
 MAX_CONCURRENT_TASKS = 10
-REQUEST_TIMEOUT = 12_000  # 2 мин
+REQUEST_TIMEOUT = 10_000  # 2 мин
 HEADLESS = True
 VIEWPORT = {'width': 600, 'height': 400}
 PROXY = None  # пример: "http://login:pass@ip:port"
@@ -67,11 +67,11 @@ async def get_product_data(context, url: str, semaphore: asyncio.Semaphore) -> O
         page = await context.new_page()
         try:
             # await page.route('**/*.{png,jpg,jpeg,webp,svg,gif,css,woff2}', block_resources)
-            await page.goto(url, wait_until="domcontentloaded", timeout=30000)
-            logger.info("✅ Страница загружена")
-        except Exception as e:
-            logger.error(f"❌ GOTO провалился: {e}")
-        try:
+            await page.goto(url, wait_until="domcontentloaded", timeout=15000)
+        #     logger.info("✅ Страница загружена")
+        # except Exception as e:
+        #     logger.error(f"❌ GOTO провалился: {e}")
+        # try:
             await page.wait_for_selector('img[itemprop="image"]', timeout=15000)
 
             product_data = await page.evaluate('''() => {
