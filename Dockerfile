@@ -57,8 +57,12 @@ COPY . .
 RUN python manage.py collectstatic --noinput || echo "Static files collection skipped"
 
 # Порт для приложения
-ENV PORT=8080
-EXPOSE $PORT
+#ENV PORT=8080
+#EXPOSE $PORT
 
 # Команда запуска
-CMD ["sh", "-c", "gunicorn config.wsgi --bind 0.0.0.0:8080 --workers 3"]
+# Установите PORT по умолчанию
+ENV PORT=8080
+
+# Используйте один из вариантов CMD:
+CMD ["sh", "-c", "gunicorn config.wsgi --bind 0.0.0.0:${PORT} --workers 3"]
