@@ -1,4 +1,5 @@
 import asyncio
+import aiofiles
 from tqdm.asyncio import tqdm
 from playwright.async_api import async_playwright
 from urllib.parse import urljoin

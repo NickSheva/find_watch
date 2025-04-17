@@ -36,3 +36,5 @@ dependencies = [
 ]
 [railway]
 restart = true
+[tool.setuptools]
+packages = ["config", "watch"] 
