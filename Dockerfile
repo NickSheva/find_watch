@@ -61,6 +61,6 @@ RUN python manage.py collectstatic --noinput || echo "Static files collection sk
 #EXPOSE $PORT
 
 # Используйте один из вариантов CMD:
-#CMD bash -c "python manage.py runserver 0.0.0.0:${PORT}"
-CMD ["gunicorn", "config.wsgi", "--bind", "0.0.0.0:8080", "--workers", "3"]
+CMD gunicorn config.wsgi --bind 0.0.0.0:$PORT --workers 3
+
 #CMD ["sh", "-c", "gunicorn config.wsgi --bind 0.0.0.0:${PORT:-8080} --workers 3"]
