@@ -67,7 +67,11 @@ async def get_product_data(context, url: str, semaphore: asyncio.Semaphore) -> O
         page = await context.new_page()
         try:
             # await page.route('**/*.{png,jpg,jpeg,webp,svg,gif,css,woff2}', block_resources)
-            await page.goto(url, wait_until="domcontentloaded", timeout=REQUEST_TIMEOUT)
+            await page.goto(url, wait_until="domcontentloaded", timeout=30000)
+            logger.info("✅ Страница загружена")
+        except Exception as e:
+            logger.error(f"❌ GOTO провалился: {e}")
+        try:
             await page.wait_for_selector('img[itemprop="image"]', timeout=15000)
 
             product_data = await page.evaluate('''() => {

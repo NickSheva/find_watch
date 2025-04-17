@@ -3,6 +3,6 @@
     "builder": "nixpacks",
     "enabled": false,
     "installCommand": "uv pip install --no-deps . && uv pip sync pyproject.toml --system",
-    "postBuildCommand": "python manage.py migrate && python manage.py collectstatic --no-input && playwright install",
+    "postBuildCommand": "playwright install chromium && python manage.py migrate && python manage.py collectstatic --no-input"
   }
 }
