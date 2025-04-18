@@ -1,5 +1,4 @@
 import asyncio
-import aiofiles
 from tqdm.asyncio import tqdm
 from playwright.async_api import async_playwright
 from urllib.parse import urljoin
@@ -12,9 +11,7 @@ import argparse
 import sys
 import tqdm
 import aiohttp
-import aiofiles
-import os
-from pathlib import Path
+
 
 # Настройка логирования
 
@@ -175,41 +172,19 @@ async def cli_main(args):
 
 
 
-
-async def bulk_download_images(image_urls: list[str], output_dir: str = "images"):
-    """
-    Массовая загрузка изображений
-    :param image_urls: Список URL изображений
-    :param output_dir: Папка для сохранения
-    """
-    Path(output_dir).mkdir(exist_ok=True)
-
-    async with aiohttp.ClientSession() as session:
-        tasks = []
-        for url in image_urls:
-            if not url:
-                continue
-
-            filename = os.path.join(output_dir, url.split("/")[-1].split("?")[0])
-            tasks.append(download_single_image(session, url, filename))
-
-        results = await tqdm.gather(*tasks, desc="📥 Загрузка изображений")
-        return [r for r in results if r]
-
-
-async def download_single_image(session: aiohttp.ClientSession, url: str, filename: str):
-    """
-    Загрузка одного изображения
-    """
-    try:
-        async with session.get(url) as response:
-            if response.status == 200:
-                async with aiofiles.open(filename, mode='wb') as f:
-                    await f.write(await response.read())
-                return filename
-    except Exception as e:
-        logger.warning(f"Не удалось загрузить {url}: {str(e)[:50]}")
-        return None
+# async def download_single_image(session: aiohttp.ClientSession, url: str, filename: str):
+#     """
+#     Загрузка одного изображения
+#     """
+#     try:
+#         async with session.get(url) as response:
+#             if response.status == 200:
+#                 async with aiofiles.open(filename, mode='wb') as f:
+#                     await f.write(await response.read())
+#                 return filename
+#     except Exception as e:
+#         logger.warning(f"Не удалось загрузить {url}: {str(e)[:50]}")
+#         return None
 
 
 # Модифицируем функцию cli_main

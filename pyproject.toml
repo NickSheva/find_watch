@@ -1,25 +1,25 @@
 [build-system]
-requires = ["setuptools>=42", "wheel"]
+requires = ["setuptools>=77.0.0", "wheel"]  # Обновлено для поддержки нового формата лицензии
 build-backend = "setuptools.build_meta"
 
 [project]
 name = "find-watch"
 version = "0.1.0"
 description = "Parser for watch catalog with Playwright and Django"
-readme = "README.md"
+readme = "README.md"  # Убедитесь, что файл существует в корне проекта
 authors = [
     {name = "Your Name", email = "your.email@example.com"},
 ]
 requires-python = ">=3.11"
-license = {text = "MIT"}
+license = "MIT"  # Изменено с таблицы на простую строку (SPDX формат)
 classifiers = [
     "Development Status :: 3 - Alpha",
     "Intended Audience :: Developers",
     "Programming Language :: Python :: 3.11",
+    "License :: OSI Approved :: MIT License",  # Добавлен классификатор лицензии
 ]
 dependencies = [
     "aiohttp>=3.11.16",
-    "aiofiles>=23.2.1",  # Добавлено явно
     "playwright>=1.40.0",
     "tqdm>=4.67.1",
     "django>=5.2",
@@ -43,13 +43,10 @@ Homepage = "https://github.com/yourusername/find-watch"
 Repository = "https://github.com/yourusername/find-watch"
 
 [tool.setuptools]
-packages = ["config", "watch"]
+# Указываем только существующие пакеты!
+packages = ["watch"]  # Убрал "config", если такой папки нет
 zip-safe = false
 
 [tool.setuptools.package-dir]
 "" = "."
-config = "config"
-watch = "watch"
-
-[railway]
-restart = true
+watch = "watch"  # Только если папка watch существует
