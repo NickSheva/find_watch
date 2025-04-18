@@ -1,9 +1,10 @@
-# docker-compose.yml
 services:
   web:
     build: .
     ports:
-      - "8000:8000"
-    command: python manage.py runserver 0.0.0.0:8080
+      - "8080:8080"
     volumes:
-      - .:/code  
+      - .:/app
+    environment:
+      - DJANGO_SETTINGS_MODULE=config.settings
+    command: /app/entrypoint.sh

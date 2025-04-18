@@ -1,1 +1,1 @@
-from watch.utils import parse_products_page
+from .utils import parse_products_page
