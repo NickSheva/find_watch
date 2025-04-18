@@ -68,4 +68,7 @@ ENV PYTHONUNBUFFERED=1
 #RUN python manage.py collectstatic --noinput
 
 # Команда запуска
-CMD gunicorn --bind 0.0.0.0:$PORT your_app.wsgi:application
+#CMD gunicorn --bind 0.0.0.0:$PORT your_app.wsgi:application
+CMD ["/bin/bash", "-c", "gunicorn run:app –bind 0.0.0.0:$PORT"]
+#CMD ["gunicorn", "--bind", "0.0.0.0:8080", "--workers", "3", "config.wsgi:application"]
+#CMD ["gunicorn", "--bind", "0.0.0.0:${PORT:-8080}", "--workers", "3", "--timeout", "60", "config.wsgi:application"]

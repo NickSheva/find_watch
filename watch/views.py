@@ -32,8 +32,8 @@ class ParseView(View):
 
     async def post(self, request):
         try:
-            if request.headers.get('x-requested-with') != 'XMLHttpRequest':
-                return JsonResponse({'status': 'error', 'message': 'Неверный тип запроса'}, status=400)
+            # if request.headers.get('x-requested-with') != 'XMLHttpRequest':
+            #     return JsonResponse({'status': 'error', 'message': 'Неверный тип запроса'}, status=400)
 
             page_num = int(request.POST.get('page_num', 1))
             items_limit = int(request.POST.get('items_limit', 0)) or None
