@@ -37,7 +37,7 @@ async def get_product_links(page, page_num: int, retries=3) -> list:
     url = f"{BASE_URL}/clocks_today/?page={page_num}"
     for attempt in range(retries):
         try:
-            await page.goto(url, wait_until="domcontentloaded", timeout=REQUEST_TIMEOUT)
+            await page.goto(url, wait_until="networkidle", timeout=80000) #wait_until="domcontentloaded", timeout=REQUEST_TIMEOUT)
             await page.wait_for_selector('a.product-list-item', timeout=30000)
             if await page.query_selector('div#recaptcha'):
                 raise Exception("Капча")
@@ -58,8 +58,8 @@ async def get_product_data(context, url: str, semaphore: asyncio.Semaphore) -> O
     async with semaphore:
         page = await context.new_page()
         try:
-            await page.goto(url, wait_until="domcontentloaded", timeout=30000)
-            await page.wait_for_selector('img[itemprop="image"]', timeout=30000)
+            await page.goto(url, wait_until="networkidle", timeout=60000) #wait_until="domcontentloaded", timeout=30000)
+            await page.wait_for_selector('img[itemprop="image"]', timeout=60000)
 
             product_data = await page.evaluate('''() => {
                 const h1 = document.querySelector('h1[itemprop="name"]');
