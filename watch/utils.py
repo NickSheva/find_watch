@@ -87,7 +87,7 @@ async def parse_products_page(page_num: int, items_limit: int = None) -> list:
     async with async_playwright() as p:
         launch_args = {
             "headless": HEADLESS,
-            "args"=[
+            "args": [
                 "--disable-dev-shm-usage",  # уже есть, но это важно
                 "--disable-background-networking",
                 "--disable-background-timer-throttling",
