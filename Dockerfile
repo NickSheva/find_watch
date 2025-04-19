@@ -43,8 +43,22 @@ RUN pip install playwright==1.40.0 && \
 
 # Копируем остальные файлы
 COPY . .
+WORKDIR /app
 
-# Сборка статики Django
+# Копирование зависимостей
+COPY pyproject.toml .
+
+# Установка Python-зависимостей
+RUN uv pip install --system -e .
+
+# Установка Playwright + браузеров
+RUN uv pip install --system playwright && \
+    playwright install --with-deps
+
+# Копирование оставшихся файлов проекта
+COPY . .
+
+# Сборка статики (если не требуется — не упадёт)
 RUN python manage.py collectstatic --noinput || echo "⚠️ Сборка статики пропущена"
 
 # Настройка entrypoint
