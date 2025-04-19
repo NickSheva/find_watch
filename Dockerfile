@@ -1,68 +1,53 @@
-# Базовый образ Python
 FROM python:3.11-slim-bookworm
 
-# Избегаем предупреждений pip при запуске от root
-ENV PIP_ROOT_USER_ACTION=ignore
+# Установка переменных окружения
+ENV PIP_ROOT_USER_ACTION=ignore \
+    DEBIAN_FRONTEND=noninteractive \
+    PLAYWRIGHT_BROWSER_TYPE=chromium
 
-# Установка системных библиотек Playwright + утилит
+# Установка системных зависимостей
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    libglib2.0-0 \
-    libgirepository-1.0-1 \
-    libnss3 \
-    libnspr4 \
-    libdbus-1-3 \
-    libatk1.0-0 \
-    libatk-bridge2.0-0 \
-    libcups2 \
-    libgdk-pixbuf2.0-0 \
-    libpango-1.0-0 \
-    libcairo2 \
-    libx11-6 \
-    libxcomposite1 \
-    libxdamage1 \
-    libxext6 \
-    libxfixes3 \
-    libxrandr2 \
-    libgbm1 \
-    libxcb1 \
-    libxkbcommon0 \
-    libasound2 \
-    libatspi2.0-0 \
-    libexpat1 \
-    wget \
-    curl \
-    gnupg \
+    # Базовые зависимости
+    libglib2.0-0 libnss3 libnspr4 libatk1.0-0 libatk-bridge2.0-0 \
+    libcups2 libdrm2 libxkbcommon0 libxcomposite1 libxdamage1 \
+    libxfixes3 libxrandr2 libgbm1 libasound2 libpango-1.0-0 \
+    libcairo2 libdbus-1-3 libexpat1 libxcb1 \
+    # Дополнительные зависимости
+    fonts-liberation libappindicator3-1 libxtst6 lsb-release xdg-utils \
+    fonts-freefont-ttf fonts-noto fonts-noto-cjk \
+    # Утилиты
+    wget curl gnupg \
     && apt-get clean && rm -rf /var/lib/apt/lists/*
-# Устанавливаем pip и обновляем
+
+# Обновление pip
 RUN pip install --upgrade pip
 
-# Устанавливаем зависимости проекта
+# Установка зависимостей проекта
 WORKDIR /app
-COPY pyproject.toml .
-COPY . .
 
-# Устанавливаем зависимости из pyproject.toml
+# Сначала копируем только requirements.txt для кэширования
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Установка Playwright с конкретной версией
+# Установка Playwright
 RUN pip install playwright==1.40.0 && \
     playwright install chromium && \
     playwright install-deps
-# Устанавливаем Playwright и браузеры
-#RUN pip install playwright && playwright install --with-deps
+
 # Копируем остальные файлы
 COPY . .
-# Копируем entrypoint и делаем его исполняемым
+
+# Сборка статики Django
+RUN python manage.py collectstatic --noinput || echo "⚠️ Сборка статики пропущена"
+
+# Настройка entrypoint
 COPY entrypoint.sh /app/entrypoint.sh
 RUN chmod +x /app/entrypoint.sh
 
-# && apt-get clean && rm -rf /var/lib/apt/lists/*
-# Railway использует этот порт
+# Порт для Railway
 ENV PORT=8080
 EXPOSE 8080
 
-# Запускаем entrypoint
 ENTRYPOINT ["/app/entrypoint.sh"]
 ## Установка pip и uv
 #RUN pip install --upgrade pip && pip install --no-cache-dir uv
