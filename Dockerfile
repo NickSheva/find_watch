@@ -28,9 +28,9 @@ RUN pip install --upgrade pip && \
 WORKDIR /app
 
 # Копирование и установка зависимостей
-COPY pyproject.toml requirements.txt ./
-RUN pip install --no-cache-dir -r requirements.txt && \
-    playwright install --with-deps chromium
+COPY pyproject.toml requirements.txt .
+#RUN pip install --no-cache-dir -r requirements.txt && \
+#    playwright install --with-deps chromium
 
 # Копирование остальных файлов
 COPY . .
