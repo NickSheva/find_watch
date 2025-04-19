@@ -48,9 +48,6 @@ WORKDIR /app
 # Копирование зависимостей
 COPY pyproject.toml .
 
-# Установка Python-зависимостей
-RUN uv pip install --system -e .
-
 # Установка Playwright + браузеров
 RUN uv pip install --system playwright && \
     playwright install --with-deps
