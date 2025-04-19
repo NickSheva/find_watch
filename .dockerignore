@@ -1,0 +1,58 @@
+# --- Python ---
+__pycache__/
+*.py[cod]
+*.pyo
+*.so
+
+# --- Virtualenv ---
+.env
+.venv/
+env/
+venv/
+
+# --- Django SQLite ---
+db.sqlite3
+db.sqlite3-journal
+
+# --- Logs & reports ---
+*.log
+logs/
+logs.txt
+
+# --- Static (можно закомментить, если собираешь статику внутри образа) ---
+staticfiles/
+media/
+
+# --- Playwright ---
+playwright-report/
+test-results/
+*.trace
+
+# --- Coverage / Testing ---
+.coverage
+htmlcov/
+.pytest_cache/
+.mypy_cache/
+.tox/
+
+# --- Editor / IDE ---
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# --- Git ---
+.git
+.gitignore
+
+# --- Docker ---
+Dockerfile
+docker-compose*
+.dockerignore
+
+# --- Docs & misc ---
+*.md
+*.rst
+*.swp
+*.swo
+*~

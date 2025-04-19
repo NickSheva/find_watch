@@ -1,0 +1,30 @@
+Metadata-Version: 2.4
+Name: find-watch
+Version: 0.1.0
+Summary: Parser for watch catalog with Playwright and Django
+Author-email: Your Name <your.email@example.com>
+License: MIT
+Project-URL: Homepage, https://github.com/yourusername/find-watch
+Project-URL: Repository, https://github.com/yourusername/find-watch
+Classifier: Development Status :: 3 - Alpha
+Classifier: Intended Audience :: Developers
+Classifier: Programming Language :: Python :: 3.11
+Requires-Python: >=3.11
+Description-Content-Type: text/markdown
+Requires-Dist: aiohttp>=3.11.16
+Requires-Dist: aiofiles>=23.2.1
+Requires-Dist: playwright>=1.40.0
+Requires-Dist: tqdm>=4.67.1
+Requires-Dist: django>=5.2
+Requires-Dist: gunicorn>=23.0.0
+Requires-Dist: whitenoise>=6.9.0
+Requires-Dist: psycopg2-binary>=2.9.10; platform_system != "Windows"
+Requires-Dist: psycopg2>=2.9.10; platform_system == "Windows"
+Requires-Dist: fake-useragent>=2.1.0
+Requires-Dist: python-decouple>=3.8
+Provides-Extra: dev
+Requires-Dist: django-debug-toolbar>=5.1.0; extra == "dev"
+Requires-Dist: django-extensions>=4.1; extra == "dev"
+Requires-Dist: ipython>=8.0.0; extra == "dev"
+
+# find_watch

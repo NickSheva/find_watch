@@ -42,7 +42,8 @@ COPY pyproject.toml .
 COPY . .
 
 # Устанавливаем зависимости из pyproject.toml
-RUN pip install .
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
 
 # Устанавливаем Playwright и браузеры
 RUN pip install playwright && playwright install --with-deps

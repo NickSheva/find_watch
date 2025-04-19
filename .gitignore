@@ -1,0 +1,62 @@
+# --- Python ---
+__pycache__/
+*.py[cod]
+*.pyo
+*.so
+
+# --- Virtualenv ---
+.env
+.venv/
+env/
+venv/
+
+# --- Django ---
+*.log
+db.sqlite3
+db.sqlite3-journal
+media/
+local_settings.py
+
+# --- Migrations (включаем в репо) ---
+# Чтобы миграции были частью проекта, НЕ игнорируем */migrations/
+# Если хочешь исключить — раскомментируй ниже:
+ */migrations/*
+ !*/migrations/__init__.py
+
+# --- Static/Collected ---
+staticfiles/
+# static/
+
+# --- Playwright ---
+playwright-report/
+test-results/
+*.trace
+
+# --- Coverage / Testing ---
+.coverage
+.coverage.*
+.cache
+*.cover
+htmlcov/
+.pytest_cache/
+.mypy_cache/
+.tox/
+
+# --- Docker ---
+*.tar
+*.lock
+*.pid
+docker-compose.override.yml
+
+# --- Editor / IDE ---
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# --- Misc ---
+logs.txt
+*.swp
+*.swo
+*~
+.python-version
