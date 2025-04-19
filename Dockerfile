@@ -3,7 +3,8 @@ FROM python:3.11-slim-bookworm
 # Установка переменных окружения
 ENV PIP_ROOT_USER_ACTION=ignore \
     DEBIAN_FRONTEND=noninteractive \
-    PLAYWRIGHT_BROWSER_TYPE=chromium
+    PLAYWRIGHT_BROWSER_TYPE=chromium \
+    PLAYWRIGHT_TIMEOUT=60000
 
 # Установка системных зависимостей
 RUN apt-get update && apt-get install -y --no-install-recommends \
@@ -27,12 +28,18 @@ WORKDIR /app
 
 # Сначала копируем только requirements.txt для кэширования
 COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
+#RUN pip install --no-cache-dir -r requirements.txt
+RUN pip install --upgrade pip && \
+    pip install --no-cache-dir -r requirements.txt
 
 # Установка Playwright
+#RUN pip install playwright==1.40.0 && \
+#    playwright install chromium && \
+#    playwright install-deps
 RUN pip install playwright==1.40.0 && \
-    playwright install chromium && \
-    playwright install-deps
+    playwright install --with-deps chromium && \
+    playwright install chromium
+
 
 # Копируем остальные файлы
 COPY . .
