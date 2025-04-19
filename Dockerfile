@@ -4,12 +4,11 @@ FROM python:3.11-slim-bookworm
 ENV DEBIAN_FRONTEND=noninteractive \
     PIP_ROOT_USER_ACTION=ignore \
     PLAYWRIGHT_BROWSER_TYPE=chromium \
-    PLAYWRIGHT_TIMEOUT=60000 \
-    PATH="/root/.local/bin:$PATH"
+    PLAYWRIGHT_TIMEOUT=60000
 
-# Установка системных зависимостей (одним слоем)
+# Установка системных зависимостей
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    # Базовые зависимости для Playwright
+    # Базовые зависимости
     libglib2.0-0 libnss3 libnspr4 libatk1.0-0 libatk-bridge2.0-0 \
     libcups2 libdrm2 libxkbcommon0 libxcomposite1 libxdamage1 \
     libxfixes3 libxrandr2 libgbm1 libasound2 libpango-1.0-0 \
@@ -21,23 +20,22 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     curl ca-certificates \
     && apt-get clean && rm -rf /var/lib/apt/lists/*
 
-# Установка uv pip (альтернатива pip с кэшированием)
-RUN pip install --no-cache-dir uv && \
-    uv pip install --upgrade pip
+# Обновление pip и установка зависимостей
+RUN pip install --upgrade pip && \
+    pip install --no-cache-dir playwright==1.40.0
 
 # Рабочая директория
 WORKDIR /app
 
-# Копирование и установка зависимостей (с кэшированием)
+# Копирование и установка зависимостей
 COPY pyproject.toml requirements.txt ./
-RUN uv pip install --no-cache-dir -r requirements.txt && \
-    uv pip install playwright==1.40.0 && \
+RUN pip install --no-cache-dir -r requirements.txt && \
     playwright install --with-deps chromium
 
 # Копирование остальных файлов
 COPY . .
 
-# Сборка статики Django (если используется)
+# Сборка статики Django
 RUN python manage.py collectstatic --noinput 2>/dev/null || echo "ℹ️ Сборка статики пропущена"
 
 # Настройка entrypoint
