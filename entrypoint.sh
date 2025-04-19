@@ -1,19 +1,22 @@
-#!/bin/sh
+#!/bin/bash
+set -e
 
-set -e  # Остановить скрипт при любой ошибке
+# Проверка зависимостей Playwright
+echo "🔍 Проверяем зависимости Playwright..."
+playwright install-deps || echo "⚠️ Предупреждение: не удалось установить все зависимости Playwright"
 
+# Миграции и статика
 echo "📦 Применяем миграции..."
 python manage.py migrate --noinput
 
 echo "🎨 Собираем статику..."
 python manage.py collectstatic --noinput --clear
 
-echo "🔄 Проверка установки Playwright..."
-playwright install-deps || echo "⚠️ Не удалось установить зависимости Playwright"
-
-echo "🚀 Запускаем Gunicorn..."
+# Запуск Gunicorn с увеличенным таймаутом
+echo "🚀 Запускаем сервер..."
 exec gunicorn config.wsgi:application \
     --bind 0.0.0.0:${PORT:-8080} \
-    --workers 3 \
+    --workers 2 \
     --timeout 120 \
-    --log-level debug
+    --log-level info \
+    --access-logfile -
