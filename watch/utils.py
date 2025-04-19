@@ -16,7 +16,7 @@ except Exception:
 # USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/120.0.0.0 Safari/537.36"
 MAX_CONCURRENT_TASKS = 10
 REQUEST_TIMEOUT = 10_000
-HEADLESS = True
+HEADLESS = False
 VIEWPORT = {'width': 600, 'height': 400}
 PROXY = None
 
@@ -88,6 +88,10 @@ async def parse_products_page(page_num: int, items_limit: int = None) -> list:
         launch_args = {
             "headless": HEADLESS,
             "args": [
+                "--disable-gpu",
+                "--disable-dev-shm-usage",  # важно для Docker
+                "--no-sandbox",
+                "--single-process",
                 "--disable-dev-shm-usage",  # уже есть, но это важно
                 "--disable-background-networking",
                 "--disable-background-timer-throttling",
