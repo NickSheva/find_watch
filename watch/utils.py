@@ -3,7 +3,7 @@ import logging
 import time
 from urllib.parse import urljoin
 from datetime import timedelta
-from typing import Optional
+from typing import Optional, List, Dict
 from fake_useragent import UserAgent
 from playwright.async_api import async_playwright
 
@@ -14,14 +14,15 @@ except Exception:
     USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/120.0.0.0 Safari/537.36"
 
 # USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/120.0.0.0 Safari/537.36"
-MAX_CONCURRENT_TASKS = 10
-REQUEST_TIMEOUT = 10_000
+MAX_CONCURRENT_TASKS = 5 # Уменьшено для стабильности
+REQUEST_TIMEOUT = 12_000  # Увеличен таймаут
 HEADLESS = True
 VIEWPORT = {'width': 600, 'height': 400}
 PROXY = None
 
 logger = logging.getLogger(__name__)
-logging.basicConfig(level=logging.INFO)
+logging.basicConfig(level=logging.INFO,
+                    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 
 class ParserTimer:
     def __init__(self):
@@ -33,10 +34,13 @@ class ParserTimer:
 
     def stop(self):
         return time.perf_counter() - self.start_time
-async def get_product_links(page, page_num: int, retries=3) -> list:
+async def get_product_links(page, page_num: int, retries=3) -> List[str]:
     url = f"{BASE_URL}/clocks_today/?page={page_num}"
     for attempt in range(retries):
         try:
+            if not await safe_goto(page, url):
+                continue
+
             await page.goto(url, wait_until="networkidle", timeout=80000) #wait_until="domcontentloaded", timeout=REQUEST_TIMEOUT)
             await page.wait_for_selector('a.product-list-item', timeout=30000)
             if await page.query_selector('div#recaptcha'):
@@ -58,8 +62,8 @@ async def get_product_data(context, url: str, semaphore: asyncio.Semaphore) -> O
     async with semaphore:
         page = await context.new_page()
         try:
-            await page.goto(url, wait_until="networkidle", timeout=60000) #wait_until="domcontentloaded", timeout=30000)
-            await page.wait_for_selector('img[itemprop="image"]', timeout=60000)
+            await page.goto(url, wait_until="networkidle", timeout=60000, state="visible") #wait_until="domcontentloaded", timeout=30000)
+            await page.wait_for_selector('img[itemprop="image"]', timeout=60000, state="visible")
 
             product_data = await page.evaluate('''() => {
                 const h1 = document.querySelector('h1[itemprop="name"]');
