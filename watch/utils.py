@@ -83,6 +83,9 @@ async def get_product_data(context, url: str, semaphore: asyncio.Semaphore) -> O
 async def parse_products_page(page_num: int, items_limit: int = None) -> list:
     timer = ParserTimer()
     timer.start()
+    playwright = await async_playwright().start()  # Явный запуск playwright
+    browser = None
+    context = None
 
     async with async_playwright() as p:
         launch_args = {
@@ -116,8 +119,11 @@ async def parse_products_page(page_num: int, items_limit: int = None) -> list:
         }
         if PROXY:
             launch_args["proxy"] = {"server": PROXY}
-
-        browser = await p.chromium.launch(**launch_args)
+        try:
+            browser = await p.chromium.launch(**launch_args)
+        except Exception as e:
+            logger.critical(f"❌ Не удалось запустить Chromium: {e}")
+            return []
         context = await browser.new_context(
             user_agent=USER_AGENT,
             viewport=VIEWPORT,
@@ -127,6 +133,9 @@ async def parse_products_page(page_num: int, items_limit: int = None) -> list:
         main_page = await context.new_page()
         try:
             product_links = await get_product_links(main_page, page_num)
+            if main_page.is_closed():
+                logger.warning(f"Страница уже закрыта: {url}")
+                return None
             if items_limit:
                 product_links = product_links[:items_limit]
             semaphore = asyncio.Semaphore(MAX_CONCURRENT_TASKS)
@@ -137,8 +146,8 @@ async def parse_products_page(page_num: int, items_limit: int = None) -> list:
             logger.info(f"✅ {len(results)} товаров за {timedelta(seconds=elapsed)}")
             return results
         finally:
-            # await main_page.close()
-            # await context.close()
+            await main_page.close()
+            await context.close()
             await browser.close()
 
 
