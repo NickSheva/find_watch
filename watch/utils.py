@@ -12,7 +12,7 @@ USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrom
 MAX_CONCURRENT_TASKS = 10
 REQUEST_TIMEOUT = 10_000
 HEADLESS = True
-VIEWPORT = {'width': 600, 'height': 400}
+VIEWPORT = {'width': 400, 'height': 300}
 PROXY = None
 
 logger = logging.getLogger(__name__)
@@ -34,6 +34,8 @@ async def get_product_links(page, page_num: int, retries=3) -> list:
     for attempt in range(retries):
         try:
             await page.goto(url, wait_until="domcontentloaded", timeout=REQUEST_TIMEOUT)
+            html = await page.content()
+            logger.debug(f"HTML content of product page:\n{html[:1000]}...")
             await page.wait_for_selector('a.product-list-item', timeout=30000)
             if await page.query_selector('div#recaptcha'):
                 raise Exception("Капча")
