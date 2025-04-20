@@ -16,7 +16,7 @@ except Exception:
 # USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/120.0.0.0 Safari/537.36"
 MAX_CONCURRENT_TASKS = 10
 REQUEST_TIMEOUT = 10_000
-HEADLESS = False
+HEADLESS = True
 VIEWPORT = {'width': 600, 'height': 400}
 PROXY = None
 
