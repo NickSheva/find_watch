@@ -8,12 +8,7 @@ from fake_useragent import UserAgent
 from playwright.async_api import async_playwright
 
 BASE_URL = "https://lombard-perspectiva.ru"
-try:
-    USER_AGENT = UserAgent().random
-except Exception:
-    USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/120.0.0.0 Safari/537.36"
-
-# USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/120.0.0.0 Safari/537.36"
+USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/120.0.0.0 Safari/537.36"
 MAX_CONCURRENT_TASKS = 10
 REQUEST_TIMEOUT = 10_000
 HEADLESS = True
@@ -33,6 +28,7 @@ class ParserTimer:
 
     def stop(self):
         return time.perf_counter() - self.start_time
+
 async def get_product_links(page, page_num: int, retries=3) -> list:
     url = f"{BASE_URL}/clocks_today/?page={page_num}"
     for attempt in range(retries):
@@ -52,7 +48,6 @@ async def get_product_links(page, page_num: int, retries=3) -> list:
             logger.warning(f"Попытка {attempt + 1} не удалась: {e}")
             if attempt == retries - 1:
                 return []
-
 
 async def get_product_data(context, url: str, semaphore: asyncio.Semaphore) -> Optional[dict]:
     async with semaphore:
@@ -79,75 +74,51 @@ async def get_product_data(context, url: str, semaphore: asyncio.Semaphore) -> O
         finally:
             await page.close()
 
-
 async def parse_products_page(page_num: int, items_limit: int = None) -> list:
     timer = ParserTimer()
     timer.start()
-    playwright = await async_playwright().start()  # Явный запуск playwright
-    browser = None
-    context = None
 
-    async with async_playwright() as p:
-        launch_args = {
-            "headless": HEADLESS,
-            "args": [
-                "--disable-gpu",
-                "--disable-dev-shm-usage",  # важно для Docker
-                "--no-sandbox",
-                "--single-process",
-                "--disable-dev-shm-usage",  # уже есть, но это важно
-                "--disable-background-networking",
-                "--disable-background-timer-throttling",
-                "--disable-breakpad",
-                "--disable-client-side-phishing-detection",
-                "--disable-component-update",
-                "--disable-default-apps",
-                "--disable-domain-reliability",
-                "--disable-extensions",
-                "--disable-features=site-per-process",
-                "--disable-hang-monitor",
-                "--disable-popup-blocking",
-                "--disable-prompt-on-repost",
-                "--disable-sync",
-                "--disable-translate",
-                "--metrics-recording-only",
-                "--no-first-run",
-                "--safebrowsing-disable-auto-update",
-                "--no-zygote",
-            ],
-            "timeout": 60_000
-        }
-        if PROXY:
-            launch_args["proxy"] = {"server": PROXY}
-        try:
-            browser = await p.chromium.launch(**launch_args)
-        except Exception as e:
-            logger.critical(f"❌ Не удалось запустить Chromium: {e}")
-            return []
-        context = await browser.new_context(
-            user_agent=USER_AGENT,
-            viewport=VIEWPORT,
-            locale='ru-RU',
-            ignore_https_errors=True
-        )
-        main_page = await context.new_page()
-        try:
+    try:
+        async with async_playwright() as p:
+            browser = await p.chromium.launch(
+                headless=True,
+                args=["--no-sandbox", "--disable-dev-shm-usage"]
+            )
+            context = await browser.new_context(
+                user_agent=USER_AGENT,
+                viewport=VIEWPORT,
+                locale='ru-RU',
+                ignore_https_errors=True
+            )
+            main_page = await context.new_page()
             product_links = await get_product_links(main_page, page_num)
-            if main_page.is_closed():
-                logger.warning(f"Страница уже закрыта: {url}")
-                return None
+
+            if not product_links:
+                logger.warning("❌ Ссылки на товары не найдены")
+                await main_page.close()
+                await context.close()
+                await browser.close()
+                return []
+
             if items_limit:
                 product_links = product_links[:items_limit]
+
             semaphore = asyncio.Semaphore(MAX_CONCURRENT_TASKS)
             tasks = [get_product_data(context, link, semaphore) for link in product_links]
             results_raw = await asyncio.gather(*tasks)
             results = [r for r in results_raw if r]
+
+            await main_page.close()
+            await asyncio.sleep(1)  # небольшая задержка перед закрытием
+
             elapsed = timer.stop()
             logger.info(f"✅ {len(results)} товаров за {timedelta(seconds=elapsed)}")
-            return results
-        finally:
-            await main_page.close()
+
             await context.close()
             await browser.close()
 
+            return results
 
+    except Exception as e:
+        logger.error(f"Критическая ошибка при парсинге: {e}")
+        return []
