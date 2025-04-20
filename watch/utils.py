@@ -138,7 +138,7 @@ async def parse_products_page(page_num: int, items_limit: int = None) -> list:
             return results
         finally:
             # await main_page.close()
-            await context.close()
+            # await context.close()
             await browser.close()
 
 
