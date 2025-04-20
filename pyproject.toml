@@ -13,6 +13,7 @@ dependencies = [
     "argparse>=1.4.0",
     "asgiref>=3.8.1",
     "asyncio>=3.4.3",
+    "beautifulsoup4>=4.13.4",
     "crispy-bootstrap5>=2025.4",
     "dj-database-url>=2.3.0",
     "django>=5.2",
@@ -24,6 +25,7 @@ dependencies = [
     "fake-useragent>=2.1.0",
     "fontawesome-free>=5.15.4",
     "gunicorn>=23.0.0",
+    "httpx>=0.28.1",
     "playwright>=1.40.0",
     "psycopg2-binary>=2.9.10",
     "pymemcache>=4.0.0",
@@ -34,3 +36,8 @@ dependencies = [
 ]
 [railway]
 restart = true
+[tool.setuptools]
+
+[tool.setuptools.packages.find]
+include = ["watch", "config"]
+exclude = ["media*", "static*", "logs*", "templates*", "staticfiles*"]

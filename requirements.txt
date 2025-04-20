@@ -6,6 +6,8 @@ aiohttp==3.11.16
     # via find-watch (pyproject.toml)
 aiosignal==1.3.2
     # via aiohttp
+anyio==4.9.0
+    # via httpx
 argparse==1.4.0
     # via find-watch (pyproject.toml)
 asgiref==3.8.1
@@ -16,6 +18,12 @@ asyncio==3.4.3
     # via find-watch (pyproject.toml)
 attrs==25.3.0
     # via aiohttp
+beautifulsoup4==4.13.4
+    # via find-watch (pyproject.toml)
+certifi==2025.1.31
+    # via
+    #   httpcore
+    #   httpx
 click==8.1.8
     # via uvicorn
 crispy-bootstrap5==2025.4
@@ -56,9 +64,18 @@ greenlet==3.2.0
 gunicorn==23.0.0
     # via find-watch (pyproject.toml)
 h11==0.14.0
-    # via uvicorn
+    # via
+    #   httpcore
+    #   uvicorn
+httpcore==1.0.8
+    # via httpx
+httpx==0.28.1
+    # via find-watch (pyproject.toml)
 idna==3.10
-    # via yarl
+    # via
+    #   anyio
+    #   httpx
+    #   yarl
 multidict==6.4.3
     # via
     #   aiohttp
@@ -81,6 +98,10 @@ python-decouple==3.8
     # via find-watch (pyproject.toml)
 redis==3.5.3
     # via django-redis-cache
+sniffio==1.3.1
+    # via anyio
+soupsieve==2.6
+    # via beautifulsoup4
 sqlparse==0.5.3
     # via
     #   django
@@ -89,6 +110,7 @@ tqdm==4.67.1
     # via find-watch (pyproject.toml)
 typing-extensions==4.13.2
     # via
+    #   beautifulsoup4
     #   dj-database-url
     #   pyee
 uvicorn==0.34.1
