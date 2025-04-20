@@ -82,7 +82,35 @@ async def parse_products_page(page_num: int, items_limit: int = None) -> list:
         async with async_playwright() as p:
             browser = await p.chromium.launch(
                 headless=True,
-                args=["--no-sandbox", "--disable-dev-shm-usage"]
+                args=["--no-sandbox",
+                      "--disable-gpu",
+                      "--disable-extensions",
+                      "--disable-setuid-sandbox",
+                      "--disable-infobars",
+                      "--single-process",
+                      "--disable-accelerated-2d-canvas",
+                      "--disable-dev-tools",
+                      "--disable-features=site-per-process",
+                      "--disable-dev-shm-usage",  # важно для Docker
+                      "--single-process",
+                      "--disable-background-networking",
+                      "--disable-background-timer-throttling",
+                      "--disable-breakpad",
+                      "--disable-client-side-phishing-detection",
+                      "--disable-component-update",
+                      "--disable-default-apps",
+                      "--disable-domain-reliability",
+                      "--disable-extensions",
+                      "--disable-hang-monitor",
+                      "--disable-popup-blocking",
+                      "--disable-prompt-on-repost",
+                      "--disable-sync",
+                      "--disable-translate",
+                      "--metrics-recording-only",
+                      "--no-first-run",
+                      "--safebrowsing-disable-auto-update",
+                      "--no-zygote",
+                      ]
             )
             context = await browser.new_context(
                 user_agent=USER_AGENT,
