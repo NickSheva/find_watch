@@ -4,7 +4,6 @@ import time
 from urllib.parse import urljoin
 from datetime import timedelta
 from typing import Optional
-
 import httpx
 from bs4 import BeautifulSoup
 from fake_useragent import UserAgent
@@ -43,10 +42,10 @@ class ParserTimer:
 # === Основной универсальный парсер ===
 async def parse_products_page(page_num: int, items_limit: int = None) -> list:
     try:
-        return await parse_with_playwright(page_num, items_limit)
-    except Exception as e:
-        logger.warning(f"⚠️ Playwright не сработал: {e} — fallback на bs4")
         return await parse_with_bs4(page_num, items_limit)
+    except Exception as e:
+        logger.warning(f"⚠️ BS4 не сработал: {e} — fallback на  parse_with_playwright")
+        return await parse_with_playwright(page_num, items_limit)
 
 
 # === Парсинг через Playwright ===
